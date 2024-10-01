@@ -67,7 +67,7 @@ const ChatList = ({ onSelectChat }: ChatListProps) => {
   return (
     <div className="flex flex-col w-full overflow-auto h-full">
       {loading ? (
-        <div className='flex flex-col gap-2 md:gap-4 p-2 md:p-4'>
+        <div className='flex flex-col gap-2 md:gap-4 p-2 md:p-4 overflow-hidden'>
           <ShimmerPlaceholder className="h-8 w-full md:w-1/2 mx-2 my-2" />
           <div className="flex flex-col p-2 md:p-4 pb-4 space-y-4 border-b border-blue-200">
             <div className="flex items-center space-x-2">
