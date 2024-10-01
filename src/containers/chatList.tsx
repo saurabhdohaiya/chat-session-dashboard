@@ -6,7 +6,6 @@ import useInfiniteScroll from '../hooks/useInfiniteScroll';
 import ShimmerChatCard from '../components/ShimmerChatCard';
 import ShimmerPlaceholder from '../components/ShimmerPlacehorder';
 import { FaSearch } from "react-icons/fa";
-
 import { DEFAULT_CHAT_SHIMMER } from '../config/config';
 
 interface ChatListProps {
@@ -24,27 +23,26 @@ const ChatList = ({ onSelectChat }: ChatListProps) => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const chatListRef = useRef<HTMLDivElement>(null); 
+  const chatListRef = useRef<HTMLDivElement>(null);
+
   const loadMoreChats = async () => {
     if (page > totalPages || loading) return;
 
     setLoading(true);
     setFetchError(null);
     try {
-        const data = await fetchChatSessions(page);
-        setChatSessions((prev) => [...prev, ...data.chat_sessions]);
-        setPage(data.current_page + 1);
-        setTotalPages(data.pages);
+      const data = await fetchChatSessions(page);
+      setChatSessions((prev) => [...prev, ...data.chat_sessions]);
+      setPage(data.current_page + 1);
+      setTotalPages(data.pages);
     } catch (error) {
-        if (error instanceof Error) {
-            setFetchError(`Error fetching chat sessions: ${error.message}`);
-            console.error("Error fetching chat sessions:", error);
-        } else {
-            setFetchError("An unknown error occurred.");
-            console.error("Unknown error:", error);
-        }
+      if (error instanceof Error) {
+        setFetchError(`Error fetching chat sessions: ${error.message}`);
+      } else {
+        setFetchError("An unknown error occurred.");
+      }
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -54,20 +52,20 @@ const ChatList = ({ onSelectChat }: ChatListProps) => {
     const matchesDateRange =
       (!startDate || (firstMessageTimestamp && new Date(firstMessageTimestamp) >= new Date(startDate))) &&
       (!endDate || (firstMessageTimestamp && new Date(firstMessageTimestamp) <= new Date(endDate)));
-    
+
     return matchesTitle && matchesDateRange;
   });
 
   useInfiniteScroll(loadMoreChats, chatListRef);
 
   useEffect(() => {
-    loadMoreChats(); 
-  }, []); 
+    loadMoreChats();
+  }, []);
 
   return (
     <div className="flex flex-col w-full overflow-auto h-full">
       {loading ? (
-        <div className='flex flex-col gap-2 md:gap-4 p-2 md:p-4 overflow-hidden'>
+        <div className="flex flex-col gap-2 md:gap-4 p-2 md:p-4 overflow-hidden">
           <ShimmerPlaceholder className="h-8 w-full md:w-1/2 mx-2 my-2" />
           <div className="flex flex-col p-2 md:p-4 pb-4 space-y-4 border-b border-blue-200">
             <div className="flex items-center space-x-2">
@@ -84,10 +82,10 @@ const ChatList = ({ onSelectChat }: ChatListProps) => {
           ))}
         </div>
       ) : (
-        <div className='flex flex-col overflow-hidden'>
-          <p className="text-base md:text-lg font-bold p-4 border-b border-blue-200">Available Chat Session</p>
-          
-          <div className='flex flex-col border-b border-blue-200 p-2 md:p-4 space-y-4'>
+        <div className="flex flex-col overflow-hidden">
+          <p className="text-lg md:text-xl font-bold p-4 border-b border-blue-200">Messages</p>
+
+          <div className="flex flex-col border-b border-blue-200 p-2 md:p-4 space-y-4">
             <div className="flex items-center space-x-2">
               <input
                 type="text"
@@ -96,14 +94,18 @@ const ChatList = ({ onSelectChat }: ChatListProps) => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <button className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-4 py-3 rounded" onClick={loadMoreChats}>
-                <FaSearch className='md:hidden'/>
-                <p className='hidden md:flex'>Search</p>
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-4 py-3 rounded"
+                onClick={loadMoreChats}
+                disabled={!searchTerm && !startDate && !endDate}
+              >
+                <FaSearch className="md:hidden" />
+                <p className="hidden md:flex">Search</p>
               </button>
             </div>
             <div className="flex justify-start items-center space-x-2">
               <div>
-                <p className='text-xs md:text-sm'>Start Date</p>
+                <p className="text-xs md:text-sm">Start Date</p>
                 <input
                   type="date"
                   className="border p-2 text-xs md:text-sm rounded"
@@ -112,7 +114,7 @@ const ChatList = ({ onSelectChat }: ChatListProps) => {
                 />
               </div>
               <div>
-                <p className='text-xs md:text-sm'>End Date: </p>
+                <p className="text-xs md:text-sm">End Date:</p>
                 <input
                   type="date"
                   className="border p-2 rounded text-xs md:text-sm"
@@ -122,23 +124,19 @@ const ChatList = ({ onSelectChat }: ChatListProps) => {
               </div>
             </div>
           </div>
-          
-          <div ref={chatListRef} className='pr-2 md:p-2 flex flex-col gap-2 md:gap-4 overflow-auto m-2'>
+
+          <div ref={chatListRef} className="pr-2 md:p-2 flex flex-col gap-2 md:gap-4 overflow-auto m-2">
             {fetchError ? (
-              <div className='flex justify-center items-center'>
-                <p className='font-semibold text-red-600'>{fetchError}</p>
+              <div className="flex justify-center items-center">
+                <p className="font-semibold text-red-600">{fetchError}</p>
               </div>
             ) : filteredChatSessions.length > 0 ? (
               filteredChatSessions.map((session, index) => (
-                <ChatCard 
-                  key={`${session.id}-${index}`} 
-                  session={session} 
-                  onClick={() => onSelectChat(session)} 
-                />
+                <ChatCard key={`${session.id}-${index}`} session={session} onClick={() => onSelectChat(session)} />
               ))
             ) : (
-              <div className='flex justify-center items-center'>
-                <p className='font-semibold text-red-600'>No Chats found for the applied Search!</p>
+              <div className="flex justify-center items-center">
+                <p className="font-semibold text-red-600">No Chats found for the applied Search!</p>
               </div>
             )}
           </div>
