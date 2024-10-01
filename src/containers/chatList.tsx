@@ -25,22 +25,26 @@ const ChatList = ({ onSelectChat }: ChatListProps) => {
   const [endDate, setEndDate] = useState('');
 
   const chatListRef = useRef<HTMLDivElement>(null); 
-
   const loadMoreChats = async () => {
     if (page > totalPages || loading) return;
 
     setLoading(true);
     setFetchError(null);
     try {
-      const data = await fetchChatSessions(page);
-      setChatSessions((prev) => [...prev, ...data.chat_sessions]);
-      setPage(data.current_page + 1);
-      setTotalPages(data.pages);
+        const data = await fetchChatSessions(page);
+        setChatSessions((prev) => [...prev, ...data.chat_sessions]);
+        setPage(data.current_page + 1);
+        setTotalPages(data.pages);
     } catch (error) {
-      setFetchError(`Error fetching chat sessions: ${error.message}`);
-      console.error("Error fetching chat sessions:", error);
+        if (error instanceof Error) {
+            setFetchError(`Error fetching chat sessions: ${error.message}`);
+            console.error("Error fetching chat sessions:", error);
+        } else {
+            setFetchError("An unknown error occurred.");
+            console.error("Unknown error:", error);
+        }
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
